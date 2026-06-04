@@ -4,6 +4,10 @@ import numpy as np
 
 app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return "WeHelp AI Server Running Successfully"
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
 
