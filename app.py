@@ -12,10 +12,10 @@ def home():
 def test():
     return "AI Test Successful"
 
-@app.route("/analyze", methods=["POST"])
+@app.route('/analyze', methods=['POST'])
 def analyze():
 
-    file = request.files["image"]
+    file = request.files['image']
 
     npimg = np.frombuffer(file.read(), np.uint8)
 
@@ -23,6 +23,16 @@ def analyze():
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    # Blur Detection
+    blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
+
+    if blur_score < 100:
+        return jsonify({
+            "status": "Invalid Image",
+            "score": 0
+        })
+
+    # Brightness Analysis
     brightness = np.mean(gray)
 
     if brightness > 120:
