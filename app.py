@@ -26,21 +26,20 @@ def analyze():
     # Blur Detection
     blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
 
-    if blur_score < 100:
-        return jsonify({
-            "status": "Invalid Image",
-            "score": 0
-        })
+   if blur_score < 100:
+    return jsonify({
+        "status": "Invalid Image",
+        "score": 0
+    })
 
-    # Brightness Analysis
-    brightness = np.mean(gray)
+brightness = np.mean(gray)
 
-    if brightness > 120:
-        status = "Fresh"
-        score = 85
-    else:
-        status = "Expired"
-        score = 35
+if brightness > 120:
+    status = "Fresh"
+    score = 85
+else:
+    status = "Possibly Expired"
+    score = 45
 
     return jsonify({
         "status": status,
