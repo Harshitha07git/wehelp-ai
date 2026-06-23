@@ -1,52 +1,62 @@
 from flask import Flask, request, jsonify
-import cv2
-import numpy as np
+import easyocr
+import os
 
 app = Flask(__name__)
 
+reader = easyocr.Reader(['en'])
+
 @app.route("/")
 def home():
-    return "WeHelp AI Server Running Successfully"
+    return "NGO Verification Server Running"
 
 @app.route("/test")
 def test():
-    return "AI Test Successful"
+    return "NGO Verification API Working"
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
+@app.route("/verify_ngo", methods=["POST"])
+def verify_ngo():
 
-    file = request.files['image']
+    file = request.files["certificate"]
 
-    npimg = np.frombuffer(file.read(), np.uint8)
+    filename = file.filename
 
-    img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+    file.save(filename)
 
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    result = reader.readtext(filename)
 
-    # Blur Detection
-    blur_score = cv2.Laplacian(gray, cv2.CV_64F).var()
+    text = " ".join([r[1] for r in result])
 
-    # Blur image
-    if blur_score < 30:
+    text = text.lower()
+
+    keywords = [
+        "registration",
+        "certificate",
+        "society",
+        "trust",
+        "ngo",
+        "foundation"
+    ]
+
+    score = 0
+
+    for word in keywords:
+        if word in text:
+            score += 1
+
+    os.remove(filename)
+
+    if score >= 2:
         return jsonify({
-            "status": "Invalid Image",
-            "score": 0
+            "status": "Verified"
         })
 
-    # Brightness Analysis
-    brightness = np.mean(gray)
-
-    if brightness > 120:
-        status = "Fresh"
-        score = 85
-    else:
-        status = "Possibly Expired"
-        score = 45
-
     return jsonify({
-        "status": status,
-        "score": score
+        "status": "Failed"
     })
 
 if __name__ == "__main__":
-    app.run()
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000))
+    )
