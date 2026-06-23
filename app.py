@@ -8,11 +8,7 @@ reader = easyocr.Reader(['en'])
 
 @app.route("/")
 def home():
-    return "NGO Verification Server Running"
-
-@app.route("/test")
-def test():
-    return "NGO Verification API Working"
+    return "NGO Verification API Running"
 
 @app.route("/verify_ngo", methods=["POST"])
 def verify_ngo():
@@ -34,8 +30,7 @@ def verify_ngo():
         "certificate",
         "society",
         "trust",
-        "ngo",
-        "foundation"
+        "ngo"
     ]
 
     score = 0
@@ -56,7 +51,4 @@ def verify_ngo():
     })
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000))
-    )
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
